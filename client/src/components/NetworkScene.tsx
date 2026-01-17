@@ -200,13 +200,10 @@ function Scene({ onNodeClick }: NetworkSceneProps) {
   const [characterTarget, setCharacterTarget] = useState<THREE.Vector3>(new THREE.Vector3(0, -1.5, 0));
   const cameraControlsRef = useRef<CameraControls>(null);
 
-  const setView = (type: 'birds-eye' | 'street' | 'isometric') => {
+  const setView = (type: 'street' | 'isometric') => {
     if (!cameraControlsRef.current) return;
     
     switch (type) {
-      case 'birds-eye':
-        cameraControlsRef.current.setLookAt(0, 40, 0, 0, 0, 0, true);
-        break;
       case 'street':
         cameraControlsRef.current.setLookAt(15, 2, 15, 0, 0, 0, true);
         break;
@@ -243,12 +240,6 @@ function Scene({ onNodeClick }: NetworkSceneProps) {
       <Html position={[-15, 10, -15]} style={{ pointerEvents: 'none' }}>
         <div className="flex flex-col gap-2 pointer-events-auto bg-black/50 p-2 rounded border border-primary/30 backdrop-blur-sm">
           <p className="text-[10px] font-mono text-primary/70 mb-1 uppercase tracking-tighter">Camera_Views</p>
-          <button 
-            onClick={() => setView('birds-eye')}
-            className="text-[10px] font-mono text-white hover:text-primary border border-white/20 hover:border-primary px-2 py-1 transition-all uppercase"
-          >
-            Bird's Eye
-          </button>
           <button 
             onClick={() => setView('street')}
             className="text-[10px] font-mono text-white hover:text-primary border border-white/20 hover:border-primary px-2 py-1 transition-all uppercase"
