@@ -291,12 +291,6 @@ function Scene({ onNodeClick }: NetworkSceneProps) {
       <Suspense fallback={null}>
         <Character targetPosition={characterTarget} />
       </Suspense>
-
-      <EffectComposer disableNormalPass multisampling={4}>
-        <Bloom luminanceThreshold={1} luminanceSmoothing={0.9} height={300} intensity={1} />
-        <Noise opacity={0.02} />
-        <Vignette eskil={false} offset={0.1} darkness={1.1} />
-      </EffectComposer>
     </>
   );
 }
