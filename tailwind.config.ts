@@ -86,6 +86,8 @@ export default {
         sans: ["var(--font-sans)"],
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
+        display: ["'Orbitron'", "sans-serif"],
+        body: ["'Rajdhani'", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
