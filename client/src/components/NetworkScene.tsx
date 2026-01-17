@@ -20,16 +20,16 @@ interface NetworkSceneProps {
   onNodeClick: (section: SectionType) => void;
 }
 
-// Node data structure
+// Node data structure (City-themed)
 const NODES = [
-  { id: "profile", label: "PROFILE", position: [0, 0, 0], color: "#00ffff", size: 1.5 },
-  { id: "experience", label: "MISSION_LOGS", position: [-4, 2, -2], color: "#bd00ff", size: 1 },
-  { id: "skills", label: "ARSENAL", position: [4, 1, -2], color: "#00ff00", size: 1 },
-  { id: "achievements", label: "HALL_OF_FAME", position: [-3, -3, 2], color: "#eab308", size: 1 },
-  { id: "contact", label: "SECURE_UPLINK", position: [3, -2, 3], color: "#ef4444", size: 1 },
+  { id: "profile", label: "CENTRAL_CITY", position: [0, 0, 0], color: "#00ffff", size: 1.5 },
+  { id: "experience", label: "WORK_DISTRICT", position: [-4, 0, -5], color: "#bd00ff", size: 1 },
+  { id: "skills", label: "TECH_HUB", position: [4, 0, -5], color: "#00ff00", size: 1 },
+  { id: "achievements", label: "TROPHY_SQUARE", position: [-5, 0, 4], color: "#eab308", size: 1 },
+  { id: "contact", label: "COMM_PORT", position: [5, 0, 4], color: "#ef4444", size: 1 },
 ] as const;
 
-// Calculate connections (Star topology: all connect to center)
+// Calculate connections (Street paths)
 const CONNECTIONS = NODES.slice(1).map(node => ({
   start: NODES[0].position,
   end: node.position,
@@ -41,47 +41,48 @@ function Node({ position, color, size, label, onClick, isHovered, isActive, onPo
   
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.rotation.x += 0.01;
-      meshRef.current.rotation.y += 0.01;
-      // Pulse effect
+      meshRef.current.rotation.y += 0.005;
+      // Hover lift effect instead of scale pulse for "street view" feel
       const t = state.clock.getElapsedTime();
-      const scale = size + Math.sin(t * 2) * 0.1 + (isHovered ? 0.3 : 0);
-      meshRef.current.scale.set(scale, scale, scale);
+      const targetY = position[1] + (isHovered ? 0.5 : 0);
+      meshRef.current.position.y = THREE.MathUtils.lerp(meshRef.current.position.y, targetY, 0.1);
     }
   });
 
   return (
     <group position={position}>
-      <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+      <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.2}>
         <mesh 
           ref={meshRef} 
           onClick={(e) => { e.stopPropagation(); onClick(); }}
           onPointerOver={(e) => { e.stopPropagation(); onPointerOver(); }}
           onPointerOut={(e) => { e.stopPropagation(); onPointerOut(); }}
         >
-          <icosahedronGeometry args={[1, 1]} />
+          {/* Building-like geometry */}
+          <boxGeometry args={[size * 1.2, size * 2.5, size * 1.2]} />
           <meshStandardMaterial 
             color={color} 
             wireframe={true}
             emissive={color}
-            emissiveIntensity={isHovered || isActive ? 2 : 0.5}
+            emissiveIntensity={isHovered || isActive ? 3 : 1}
             transparent
-            opacity={0.8}
+            opacity={0.9}
           />
         </mesh>
         
-        {/* Glow Sphere */}
-        <mesh scale={[size * 1.2, size * 1.2, size * 1.2]}>
-           <sphereGeometry args={[1, 16, 16]} />
-           <meshBasicMaterial color={color} transparent opacity={0.1} />
+        {/* Foundation/Base */}
+        <mesh position={[0, -size * 1.25, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+           <planeGeometry args={[size * 2, size * 2]} />
+           <meshBasicMaterial color={color} transparent opacity={0.2} side={THREE.DoubleSide} />
         </mesh>
 
         <Text
-          position={[0, -size - 0.5, 0]}
-          fontSize={0.4}
+          position={[0, size * 1.5, 0]}
+          fontSize={0.5}
           color={color}
           anchorX="center"
           anchorY="middle"
+          font="https://fonts.gstatic.com/s/rajdhani/v15/L10xAzT22cOpYlOQYxJc.woff"
         >
           {label}
         </Text>
@@ -147,9 +148,9 @@ function Scene({ onNodeClick }: NetworkSceneProps) {
   const cameraControlsRef = useRef<CameraControls>(null);
 
   const handleNodeClick = (id: string, position: number[]) => {
-    // Zoom camera to node
+    // Street-view style zoom
     cameraControlsRef.current?.setLookAt(
-      position[0] * 1.2, position[1] * 1.2 + 2, position[2] * 1.2 + 5, // Camera position
+      position[0] + 5, position[1] + 2, position[2] + 5, // Camera position
       position[0], position[1], position[2], // Target position
       true // Animate
     );
@@ -158,17 +159,22 @@ function Scene({ onNodeClick }: NetworkSceneProps) {
 
   return (
     <>
-      <PerspectiveCamera makeDefault position={[0, 0, 15]} fov={50} />
+      <PerspectiveCamera makeDefault position={[15, 10, 15]} fov={50} />
       <CameraControls 
         ref={cameraControlsRef} 
-        minDistance={5} 
-        maxDistance={30} 
+        minDistance={2} 
+        maxDistance={40}
+        minPolarAngle={0}
+        maxPolarAngle={Math.PI / 2.1} // Keep camera above the "ground"
       />
 
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} />
+      <ambientLight intensity={0.4} />
+      <pointLight position={[20, 20, 20]} intensity={1.5} color="#00ffff" />
       
-      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+      {/* Ground Plane for Street View Feel */}
+      <gridHelper args={[100, 50, "#111", "#222"]} position={[0, -2, 0]} />
+      
+      <Stars radius={150} depth={50} count={3000} factor={4} saturation={0} fade speed={0.5} />
       
       {/* Network Group */}
       <group>
