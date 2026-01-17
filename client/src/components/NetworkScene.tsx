@@ -106,7 +106,7 @@ function Node({ position, color, size, label, onClick, isHovered, isActive, onPo
 
   return (
     <group position={position}>
-      <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.2}>
+      <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
         <mesh 
           ref={meshRef} 
           onClick={(e) => { e.stopPropagation(); onClick(); }}
@@ -118,21 +118,30 @@ function Node({ position, color, size, label, onClick, isHovered, isActive, onPo
             color={color} 
             wireframe={true}
             transparent
-            opacity={0.9}
+            opacity={0.8}
+            metalness={0.9}
+            roughness={0.1}
           />
         </mesh>
         
+        {/* Animated Rings for Game Feel */}
         <mesh position={[0, -size * 1.5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-           <planeGeometry args={[size * 3, size * 3]} />
-           <meshBasicMaterial color={color} transparent opacity={0.15} side={THREE.DoubleSide} />
+           <ringGeometry args={[size * 2, size * 2.2, 32]} />
+           <meshBasicMaterial color={color} transparent opacity={0.3} side={THREE.DoubleSide} />
+        </mesh>
+        <mesh position={[0, -size * 1.5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+           <ringGeometry args={[size * 2.5, size * 2.6, 32]} />
+           <meshBasicMaterial color={color} transparent opacity={0.1} side={THREE.DoubleSide} />
         </mesh>
 
         <Text
-          position={[0, size * 2, 0]}
-          fontSize={0.6}
+          position={[0, size * 2.5, 0]}
+          fontSize={0.5}
           color={color}
           anchorX="center"
           anchorY="middle"
+          outlineWidth={0.05}
+          outlineColor="#000"
         >
           {label}
         </Text>
@@ -242,30 +251,40 @@ function Scene({ onNodeClick }: NetworkSceneProps) {
 
       {/* View Controls Overlay */}
       <Html position={[-15, 10, -15]} style={{ pointerEvents: 'none' }}>
-        <div className="flex flex-col gap-2 pointer-events-auto bg-black/50 p-2 rounded border border-primary/30 backdrop-blur-sm">
-          <p className="text-[10px] font-mono text-primary/70 mb-1 uppercase tracking-tighter">Camera_Views</p>
+        <div className="flex flex-col gap-2 pointer-events-auto bg-black/80 p-3 rounded-none border-l-4 border-primary backdrop-blur-md">
+          <p className="text-[10px] font-mono text-primary mb-1 uppercase tracking-[0.2em] font-bold">System_Interface_v1.0.4</p>
+          <div className="h-[1px] w-full bg-primary/30 mb-2" />
           <button 
             onClick={() => setView('street')}
-            className="text-[10px] font-mono text-white hover:text-primary border border-white/20 hover:border-primary px-2 py-1 transition-all uppercase"
+            className="text-[11px] font-mono text-white hover:bg-primary/20 border border-primary/40 px-3 py-1.5 transition-all uppercase flex items-center gap-2"
           >
-            Street View
+            <div className="w-1.5 h-1.5 bg-primary" />
+            Street_Nav
           </button>
           <button 
             onClick={() => setView('isometric')}
-            className="text-[10px] font-mono text-white hover:text-primary border border-white/20 hover:border-primary px-2 py-1 transition-all uppercase"
+            className="text-[11px] font-mono text-white hover:bg-primary/20 border border-primary/40 px-3 py-1.5 transition-all uppercase flex items-center gap-2"
           >
-            Isometric
+            <div className="w-1.5 h-1.5 bg-primary" />
+            Tactical_View
           </button>
         </div>
       </Html>
 
-      <ambientLight intensity={0.8} />
-      <pointLight position={[20, 20, 20]} intensity={2.5} color="#00ffff" />
-      <spotLight position={[-10, 20, -10]} intensity={1.5} color="#bd00ff" />
+      {/* Retro Scanline Overlay */}
+      <Html fullscreen style={{ pointerEvents: 'none' }}>
+        <div className="w-full h-full opacity-[0.03] pointer-events-none" 
+             style={{ background: 'repeating-linear-gradient(0deg, #fff, #fff 1px, transparent 1px, transparent 2px)', backgroundSize: '100% 2px' }} />
+      </Html>
+
+      <ambientLight intensity={0.4} />
+      <pointLight position={[20, 20, 20]} intensity={3} color="#00ffff" />
+      <spotLight position={[-10, 30, -10]} intensity={2} color="#bd00ff" angle={0.5} penumbra={1} />
+      <directionalLight position={[0, 10, 0]} intensity={0.5} color="#00ff00" />
       
-      <gridHelper args={[400, 80, "#333", "#222"]} position={[0, -2, 0]} />
+      <gridHelper args={[400, 40, "#1a1a1a", "#0d0d0d"]} position={[0, -2, 0]} />
       
-      <fog attach="fog" args={["#000", 20, 100]} />
+      <fog attach="fog" args={["#000", 10, 80]} />
       
       <group>
         {NODES.map((node) => (
