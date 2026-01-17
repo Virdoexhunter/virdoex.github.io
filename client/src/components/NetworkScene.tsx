@@ -136,7 +136,6 @@ function Node({ position, color, size, label, onClick, isHovered, isActive, onPo
           color={color}
           anchorX="center"
           anchorY="middle"
-          font="https://fonts.gstatic.com/s/rajdhani/v15/L10xAzT22cOpYlOQYxJc.woff"
         >
           {label}
         </Text>
@@ -200,6 +199,12 @@ function Scene({ onNodeClick }: NetworkSceneProps) {
   const [characterTarget, setCharacterTarget] = useState<THREE.Vector3>(new THREE.Vector3(0, -1.5, 0));
   const cameraControlsRef = useRef<CameraControls>(null);
 
+  useEffect(() => {
+    if (cameraControlsRef.current) {
+      cameraControlsRef.current.setLookAt(20, 15, 20, 0, 0, 0, false);
+    }
+  }, []);
+
   const setView = (type: 'street' | 'isometric') => {
     if (!cameraControlsRef.current) return;
     
@@ -228,12 +233,12 @@ function Scene({ onNodeClick }: NetworkSceneProps) {
 
   return (
     <>
-      <PerspectiveCamera makeDefault position={[20, 15, 20]} fov={50} />
       <CameraControls 
         ref={cameraControlsRef} 
         minDistance={5} 
         maxDistance={60}
         maxPolarAngle={Math.PI / 2.1}
+        makeDefault
       />
 
       {/* View Controls Overlay */}
@@ -287,10 +292,10 @@ function Scene({ onNodeClick }: NetworkSceneProps) {
         <Character targetPosition={characterTarget} />
       </Suspense>
 
-      <EffectComposer disableNormalPass>
-        <Bloom luminanceThreshold={0.1} luminanceSmoothing={0.9} height={300} intensity={2} />
-        <Noise opacity={0.03} />
-        <Vignette eskil={false} offset={0.1} darkness={1.2} />
+      <EffectComposer disableNormalPass multisampling={4}>
+        <Bloom luminanceThreshold={1} luminanceSmoothing={0.9} height={300} intensity={1} />
+        <Noise opacity={0.02} />
+        <Vignette eskil={false} offset={0.1} darkness={1.1} />
       </EffectComposer>
     </>
   );
@@ -300,13 +305,7 @@ export function NetworkScene(props: NetworkSceneProps) {
   return (
     <div className="w-full h-screen bg-black">
       <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
-        <Suspense fallback={
-          <Html center>
-            <div className="text-primary font-mono animate-pulse text-xl">LOADING_SYSTEM...</div>
-          </Html>
-        }>
-          <Scene {...props} />
-        </Suspense>
+        <Scene {...props} />
       </Canvas>
     </div>
   );
