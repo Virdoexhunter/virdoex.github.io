@@ -259,13 +259,13 @@ function Scene({ onNodeClick }: NetworkSceneProps) {
         </div>
       </Html>
 
-      <ambientLight intensity={0.6} />
-      <pointLight position={[20, 20, 20]} intensity={2} color="#00ffff" />
-      <spotLight position={[-10, 20, -10]} intensity={1} color="#bd00ff" />
+      <ambientLight intensity={0.8} />
+      <pointLight position={[20, 20, 20]} intensity={2.5} color="#00ffff" />
+      <spotLight position={[-10, 20, -10]} intensity={1.5} color="#bd00ff" />
       
-      <gridHelper args={[200, 40, "#222", "#111"]} position={[0, -2, 0]} />
+      <gridHelper args={[400, 80, "#333", "#222"]} position={[0, -2, 0]} />
       
-      <Stars radius={200} depth={50} count={2000} factor={4} saturation={0} fade speed={0.5} />
+      <fog attach="fog" args={["#000", 20, 100]} />
       
       <group>
         {NODES.map((node) => (
